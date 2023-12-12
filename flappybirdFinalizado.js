@@ -43,6 +43,11 @@ let dinheiroApostado = 0;
 // Flag para indicar se o jogo ficou mais difícil
 let jogoFicouMaisDificil = false;
 
+let dinheiroGanho = 0;
+let dinheiroInserido = 0;
+let fatorAumentoVelocidade = 2.5; // aqui aumentamos a velocidade
+
+
 
 
 // Aguarda até que a página HTML seja totalmente carregada antes de executar o código
@@ -73,7 +78,10 @@ window.onload = function () {
     imagemCanoInferior.src = "assets/cano-baixo.png";
 
     // Solicita ao usuário inserir a quantia de dinheiro fictício
-    dinheiroApostado = parseFloat(prompt("Digite a quantia de dinheiro fictício que você deseja apostar:"));
+    dinheiroApostado = parseFloat(prompt("Digite a quantia de dinheiro você deseja apostar:"));
+
+    // Atualiza o valor da span "quantiaApostada"
+    document.getElementById("quantiaApostada").textContent = dinheiroApostado.toFixed(2);
 
     // Inicia o loop de atualização do jogo usando requestAnimationFrame
     requestAnimationFrame(atualizar);
@@ -91,7 +99,6 @@ function moverPassaro(evento) {
         // Ajusta a velocidade vertical para simular um salto
         velocidadeY = -6;
 
-        // Adiciona um delay maior se o usuário apostou mais de R$100,00
         if (dinheiroApostado > 100) {
             setTimeout(function () {
                 velocidadeY = 0; // Redefine a velocidade vertical após o delay
@@ -112,9 +119,8 @@ function atualizar() {
     // Limpa a área do tabuleiro para desenhar a próxima moldura
     contexto.clearRect(0, 0, tabuleiro.width, tabuleiro.height);
 
-    // Verifica se o jogo ficou mais difícil com base na quantia de dinheiro apostada
     if (dinheiroApostado > 100 && !jogoFicouMaisDificil) {
-        velocidadeX *= 1.5; // Aumenta a velocidade de movimento dos canos para a esquerda
+        velocidadeX *= fatorAumentoVelocidade; // Aumenta a velocidade de movimento dos canos para a esquerda
         jogoFicouMaisDificil = true;
         console.log("O jogo ficou mais difícil!");
     }
@@ -209,4 +215,42 @@ function detectarColisao(passaro, cano) {
     return false;
 }
 
+function atualizarPontuacao() {
+    pontuacao += 0;
+    atualizarDinheiroGanho();
+}
+
+function atualizarDinheiroGanho() {
+    dinheiroGanho = pontuacao * 5.00;
+    const dinheiroGanhoElement = document.getElementById("dinheiroGanho");
+    dinheiroGanhoElement.textContent = "$" + dinheiroGanho.toFixed(2);
+}
+setInterval(atualizarPontuacao, 1000);
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("botaoApostar").addEventListener("click", function () {
+        let quantiaAposta = parseFloat(document.getElementById("quantiaAposta").value);
+        if (!isNaN(quantiaAposta) && quantiaAposta > 0) {
+            alert("Quantia de $" + quantiaAposta.toFixed(2) + " apostada com sucesso!");
+        } else {
+            alert("Insira uma quantia válida para apostar...");
+        }
+    });
+});
+
+function atualizarDinheiroInserido(valor) {
+    dinheiroInserido = valor;
+    ajustarDificuldadeDoJogo();
+}
+
+function ajustarDificuldadeDoJogo() {
+    if (dinheiroInserido > 100) {
+        velocidadeX = -4;
+        velocidadeY = -5;
+    } else {
+        velocidadeX = -2;
+        velocidadeY = -3;
+    }
+}
 
